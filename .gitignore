@@ -1,0 +1,12 @@
+# Virtual environment
+venv/
+
+# Environment variables (VERY IMPORTANT)
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
