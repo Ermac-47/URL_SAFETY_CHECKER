@@ -5,9 +5,10 @@ langchain-groq
 python-dotenv
 requests
 tldextract
-whois
+python-whois
 beautifulsoup4
 scikit-learn
 joblib
+pandas
 flask
 flask-cors
