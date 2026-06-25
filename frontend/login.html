@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login{
+            width: 400px;
+            height: 520px;
+            background: url('https://th.bing.com/th/id/OIP.xopeHwWooaDwXB9JUA6t_gHaEK?w=351');
+            color: white;
+            border-radius: 20px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.75);
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        form{
+            padding: 40px;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: brightness(40%);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        h1{
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+
+        label{
+            font-size: 10px;
+            letter-spacing: 2px;
+            padding-left: 10px;
+        }
+
+        input{
+            background: rgba(255,255,255,0.3);
+            height: 40px;
+            border-radius: 20px;
+            padding: 0px 20px;
+            border: none;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        button{
+            background: rgb(45,126,231);
+            height: 40px;
+            border-radius: 40px;
+            border: none;
+            margin-top: 10px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .toggle{
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login">
+        <form onsubmit="return false;">
+            <h1 id="title">LOGIN</h1>
+
+            <label>Username</label>
+            <input id="username" type="text" placeholder="Enter username">
+
+            <label>Password</label>
+            <input id="password" type="password" placeholder="Enter password">
+
+            <button id="submitBtn">Submit</button>
+
+            <div class="toggle" id="toggleMode">
+                Don't have an account? Sign up
+            </div>
+        </form>
+    </div>
+
+<script>
+let mode = "login"; // login or signup
+
+document.getElementById("toggleMode").addEventListener("click", () => {
+    if(mode === "login"){
+        mode = "signup";
+        document.getElementById("title").innerText = "SIGN UP";
+        document.getElementById("toggleMode").innerText = "Already have an account? Login";
+    } else {
+        mode = "login";
+        document.getElementById("title").innerText = "LOGIN";
+        document.getElementById("toggleMode").innerText = "Don't have an account? Sign up";
+    }
+});
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if(!username || !password){
+        alert("Please fill all fields");
+        return;
+    }
+
+    const endpoint = mode === "login" ? "login" : "signup";
+
+    const response = await fetch(`http://127.0.0.1:5000/${endpoint}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if(data.status === "success"){
+        alert(data.message);
+
+        if(mode === "login"){
+            window.location.href = "dashboard.html";
+        }
+    } else {
+        alert(data.message);
+    }
+});
+</script>
+
+</body>
+</html>
