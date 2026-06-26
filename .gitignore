@@ -88,3 +88,44 @@ Desktop.ini
 # KEEP
 # =====================================================
 !.gitignore
+# =====================================================
+# TRAINED MODELS (Large files)
+# =====================================================
+*.h5
+*.keras
+*.pb
+
+# Uncomment if model is too large for GitHub
+# backend/models/trained_models/url_detector.keras
+
+# =====================================================
+# TOKENIZER
+# =====================================================
+*.pkl
+
+# Uncomment if tokenizer is regenerated
+# backend/models/trained_models/tokenizer.pkl
+
+# =====================================================
+# MODEL OUTPUTS
+# =====================================================
+backend/models/trained_models/history.pkl
+backend/models/trained_models/model_summary.txt
+backend/models/trained_models/metrics.json
+backend/models/trained_models/classification_report.txt
+
+# =====================================================
+# GENERATED PLOTS
+# =====================================================
+backend/models/trained_models/plots/
+
+# =====================================================
+# PYTHON ENV
+# =====================================================
+.python-version
+
+# =====================================================
+# SYSTEM
+# =====================================================
+*.swp
+*.swo

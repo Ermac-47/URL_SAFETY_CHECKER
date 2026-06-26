@@ -13,3 +13,5 @@ flask
 flask-cors
 tensorflow
 keras
+matplotlib
+seaborn

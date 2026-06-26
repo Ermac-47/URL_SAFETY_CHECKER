@@ -4,7 +4,7 @@ from langchain_groq import ChatGroq
 
 from utils.feature_extractor import extract_url_features
 from utils.risk_engine import compute_risk_score
-from models.predict import predict_url
+from models.inference.predict import predict_url
 
 import json
 import os
@@ -124,12 +124,19 @@ def login():
 
 # -------------------- CORE ANALYSIS --------------------
 def analyze_url(url):
+    # ---------------- FEATURE EXTRACTION ----------------
     features = extract_url_features(url)
 
+    # ---------------- RULE ENGINE ----------------
     rule_result = compute_risk_score(features)
     rule_score = rule_result["risk_score"]
 
-    ml_score = predict_url(features)
+    # ---------------- DEEP LEARNING ----------------
+    dl_result = predict_url(url)
+
+    ml_score = dl_result["probability"]
+    ml_prediction = dl_result["prediction"]
+    ml_confidence = dl_result["confidence"]
 
     # ---- LLM ----
     llm_result = get_llm_analysis(
@@ -140,15 +147,25 @@ def analyze_url(url):
         rule_result["reasons"]
     )
 
-    llm_score = llm_result.get("llm_score", 0)
+    try:
+        llm_score = float(llm_result.get("llm_score", 0))
+    except:
+        llm_score = 0.0
 
     # ---- FINAL HYBRID SCORE ----
     final_score = (
-        (rule_score * 0.3) +
-        (ml_score * 0.4) +
-        (llm_score * 0.3)
+        (rule_score * 0.45) +
+        (ml_score * 0.25) +
+        (llm_score * 0.30)
     )
 
+    # Strong Rule Override
+    if any(
+        "Possible impersonation" in reason or
+        "Suspicious use of numbers" in reason
+        for reason in rule_result["reasons"]
+    ):
+        final_score = max(final_score, 0.80)
     # ---------------- TRUSTED DOMAIN FIX ----------------
     TRUSTED_DOMAINS = ["google.com", "livechat.com", "amazon.com", "paypal.com"]
 
@@ -187,7 +204,14 @@ def analyze_url(url):
         "verdict": verdict,
 
         "reasons": rule_result["reasons"],
-        "ml_score": round(ml_score, 2),
+        "ml_score": round(ml_score, 4),
+
+        "deep_learning": {
+            "prediction": ml_prediction,
+            "probability": round(ml_score, 4),
+            "confidence": round(ml_confidence, 4)
+        },
+
         "rule_score": round(rule_score, 2),
         "llm_score": round(llm_score, 2),
         "llm_explanation": llm_result.get("explanation", "")
