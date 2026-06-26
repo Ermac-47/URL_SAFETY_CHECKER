@@ -1,8 +1,17 @@
 {
   "manifest_version": 3,
-  "name": "URL Safety Checker",
-  "version": "1.0",
-  "permissions": ["tabs"],
+  "name": "URLShieldNet",
+  "description": "AI-Powered Hybrid URL Security Platform",
+  "version": "2.0",
+
+  "permissions": [
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "http://127.0.0.1:5000/*"
+  ],
+
   "action": {
     "default_popup": "popup.html"
   }

@@ -1,45 +1,193 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>URL Checker</title>
-    <style>
-        body {
-            width: 250px;
-            padding: 15px;
-            font-family: Arial;
-            text-align: center;
-        }
 
-        #verdict {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+<meta charset="UTF-8">
 
-        #score {
-            margin-bottom: 10px;
-        }
+<title>URLShieldNet</title>
 
-        #reason {
-            font-size: 12px;
-            color: #333;
-        }
+<style>
 
-        button {
-            margin-top: 10px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-    </style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,Arial;
+}
+
+body{
+
+width:340px;
+
+background:#0f172a;
+
+color:white;
+
+padding:18px;
+
+}
+
+h2{
+
+text-align:center;
+
+margin-bottom:15px;
+
+color:#38bdf8;
+
+}
+
+.card{
+
+background:#1e293b;
+
+padding:14px;
+
+border-radius:12px;
+
+margin-bottom:12px;
+
+}
+
+.label{
+
+font-size:12px;
+
+color:#94a3b8;
+
+margin-bottom:4px;
+
+}
+
+.value{
+
+font-size:15px;
+
+font-weight:bold;
+
+word-break:break-all;
+
+}
+
+#verdict{
+
+text-align:center;
+
+padding:12px;
+
+border-radius:10px;
+
+font-size:20px;
+
+font-weight:bold;
+
+margin:15px 0;
+
+}
+
+.safe{
+
+background:#16a34a;
+
+}
+
+.suspicious{
+
+background:#f59e0b;
+
+}
+
+.phishing{
+
+background:#dc2626;
+
+}
+
+button{
+
+width:100%;
+
+padding:12px;
+
+border:none;
+
+border-radius:8px;
+
+cursor:pointer;
+
+background:#38bdf8;
+
+color:white;
+
+font-size:15px;
+
+font-weight:bold;
+
+margin-top:15px;
+
+}
+
+button:hover{
+
+background:#0ea5e9;
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-    <div id="verdict">Checking...</div>
-    <div id="score"></div>
-    <div id="reason"></div>
+<h2>🛡 URLShieldNet</h2>
 
-    <button id="details">View Full Report</button>
+<div class="card">
 
-    <script src="popup.js"></script>
+<div class="label">Current Website</div>
+
+<div id="domain" class="value">Loading...</div>
+
+</div>
+
+<div id="verdict">
+
+Checking...
+
+</div>
+
+<div class="card">
+
+<div class="label">Risk Score</div>
+
+<div id="score" class="value">--</div>
+
+</div>
+
+<div class="card">
+
+<div class="label">AI Confidence</div>
+
+<div id="confidence" class="value">--</div>
+
+</div>
+
+<div class="card">
+
+<div class="label">Primary Reason</div>
+
+<div id="reason" class="value">Loading...</div>
+
+</div>
+
+<button id="details">
+
+📊 View Full Security Report
+
+</button>
+
+<script src="popup.js"></script>
+
 </body>
+
 </html>

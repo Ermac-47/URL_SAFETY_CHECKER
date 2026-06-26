@@ -166,9 +166,12 @@ def compute_risk_score(features):
         score += 5
         reasons.append("Uses IP address instead of domain")
 
-    if features.get("has_suspicious_keyword", 0):
-
-        score += 4
+    # Don't penalize login/signin pages on trusted domains
+    if (
+        features.get("has_suspicious_keyword", 0)
+        and not features.get("trusted_domain", 0)
+    ):
+        score += 3
         reasons.append("Contains suspicious keywords")
 
     # --------------------------------------------------
@@ -193,8 +196,10 @@ def compute_risk_score(features):
     # CONTENT FEATURES
     # --------------------------------------------------
 
-    if features.get("has_login_form", 0):
-
+    if (
+        features.get("has_login_form", 0)
+        and not features.get("trusted_domain", 0)
+    ):
         score += 2
         reasons.append("Login form detected")
 
@@ -203,11 +208,12 @@ def compute_risk_score(features):
         score += 2
         reasons.append("Multiple iframes detected")
 
-    if features.get("title_mismatch", 0):
-
-        score += 2
-        reasons.append("Page title mismatch")
-
+    if (
+        features.get("title_mismatch", 0)
+        and not features.get("trusted_domain", 0)
+    ):
+        score += 1
+        reasons.append("Title mismatch")
     # --------------------------------------------------
     # DIGIT MIXING
     # --------------------------------------------------

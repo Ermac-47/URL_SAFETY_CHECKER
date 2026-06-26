@@ -12,28 +12,196 @@ from difflib import SequenceMatcher
 # TRUSTED BRANDS
 # =====================================================
 
-TRUSTED_DOMAINS = [
+TRUSTED_DOMAINS = {
 
+    # ==========================
+    # Search Engines
+    # ==========================
     "google.com",
-    "facebook.com",
-    "instagram.com",
-    "amazon.com",
-    "paypal.com",
-    "microsoft.com",
-    "github.com",
-    "linkedin.com",
-    "apple.com",
-    "netflix.com",
-    "youtube.com",
+    "bing.com",
+    "duckduckgo.com",
+    "yahoo.com",
+
+    # ==========================
+    # AI
+    # ==========================
     "openai.com",
     "chatgpt.com",
-    "twitter.com",
-    "x.com",
+    "anthropic.com",
+    "claude.ai",
+    "perplexity.ai",
+    "deepmind.google",
+    "gemini.google.com",
+
+    # ==========================
+    # Microsoft
+    # ==========================
+    "microsoft.com",
+    "microsoftonline.com",
+    "office.com",
+    "office365.com",
+    "live.com",
+    "outlook.com",
+    "azure.com",
+    "windows.com",
+
+    # ==========================
+    # Apple
+    # ==========================
+    "apple.com",
+    "icloud.com",
+
+    # ==========================
+    # Amazon
+    # ==========================
+    "amazon.com",
+    "aws.amazon.com",
+    "primevideo.com",
+
+    # ==========================
+    # Meta
+    # ==========================
+    "facebook.com",
+    "instagram.com",
+    "threads.net",
+    "messenger.com",
     "whatsapp.com",
-    "telegram.org"
 
-]
+    # ==========================
+    # Google Services
+    # ==========================
+    "gmail.com",
+    "youtube.com",
+    "drive.google.com",
+    "accounts.google.com",
+    "docs.google.com",
+    "photos.google.com",
+    "maps.google.com",
 
+    # ==========================
+    # Social Media
+    # ==========================
+    "x.com",
+    "twitter.com",
+    "linkedin.com",
+    "reddit.com",
+    "discord.com",
+    "telegram.org",
+    "snapchat.com",
+    "pinterest.com",
+
+    # ==========================
+    # Shopping
+    # ==========================
+    "flipkart.com",
+    "myntra.com",
+    "ajio.com",
+    "meesho.com",
+    "ebay.com",
+    "etsy.com",
+
+    # ==========================
+    # Payments
+    # ==========================
+    "paypal.com",
+    "stripe.com",
+    "razorpay.com",
+    "paytm.com",
+    "phonepe.com",
+
+    # ==========================
+    # Banking (Examples)
+    # ==========================
+    "hdfcbank.com",
+    "icicibank.com",
+    "sbi.co.in",
+    "axisbank.com",
+    "kotak.com",
+
+    # ==========================
+    # Developer Platforms
+    # ==========================
+    "github.com",
+    "gitlab.com",
+    "bitbucket.org",
+    "stackoverflow.com",
+    "stackoverflow.blog",
+
+    # ==========================
+    # Programming
+    # ==========================
+    "python.org",
+    "java.com",
+    "oracle.com",
+    "mozilla.org",
+    "developer.mozilla.org",
+
+    # ==========================
+    # Linux
+    # ==========================
+    "ubuntu.com",
+    "debian.org",
+    "archlinux.org",
+    "kernel.org",
+    "redhat.com",
+
+    # ==========================
+    # Hardware
+    # ==========================
+    "intel.com",
+    "amd.com",
+    "nvidia.com",
+    "arm.com",
+
+    # ==========================
+    # Education
+    # ==========================
+    "coursera.org",
+    "udemy.com",
+    "edx.org",
+    "khanacademy.org",
+    "geeksforgeeks.org",
+    "w3schools.com",
+
+    # ==========================
+    # Streaming
+    # ==========================
+    "netflix.com",
+    "spotify.com",
+    "disneyplus.com",
+    "hotstar.com",
+    "primevideo.com",
+
+    # ==========================
+    # Communication
+    # ==========================
+    "zoom.us",
+    "slack.com",
+    "meet.google.com",
+
+    # ==========================
+    # Security
+    # ==========================
+    "virustotal.com",
+    "cloudflare.com",
+    "cisco.com",
+    "kaspersky.com",
+    "malwarebytes.com",
+
+    # ==========================
+    # Government / Standards
+    # ==========================
+    "nist.gov",
+    "cisa.gov",
+    "cert.org",
+
+    # ==========================
+    # Knowledge
+    # ==========================
+    "wikipedia.org",
+    "wikimedia.org",
+
+}
 
 # =====================================================
 # SUSPICIOUS KEYWORDS
@@ -133,7 +301,8 @@ def extract_url_features(url):
     domain = f"{ext.domain}.{ext.suffix}"
 
     features["domain"] = domain
-
+    # ---------------- TRUSTED DOMAIN ----------------
+    features["trusted_domain"] = int(domain in TRUSTED_DOMAINS)
     # =================================================
     # TRUSTED DOMAIN LOOKALIKE
     # =================================================
