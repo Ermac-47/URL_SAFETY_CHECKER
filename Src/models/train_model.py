@@ -96,4 +96,4 @@ model.fit(X, y)
 joblib.dump(model, "Src/models/phishing_model.pkl")
 joblib.dump(feature_keys, "Src/models/feature_keys.pkl")
 
-print("✅ Model trained and saved!")
+print("✅ Model trained and saved!")c
