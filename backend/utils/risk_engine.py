@@ -2,290 +2,170 @@ import math
 import re
 import difflib
 
-# --------------------------------------------------
-# IMPORTANT BRANDS
-# --------------------------------------------------
-
 IMPORTANT_BRANDS = [
-    "google",
-    "apple",
-    "amazon",
-    "facebook",
-    "microsoft",
-    "paypal",
-    "netflix",
-    "instagram",
-    "youtube",
-    "samsung",
-    "github",
-    "linkedin",
-    "openai",
-    "chatgpt",
-    "twitter",
-    "x",
-    "whatsapp",
-    "telegram"
+    "google", "apple", "amazon", "facebook", "microsoft",
+    "paypal", "netflix", "instagram", "youtube", "samsung",
+    "github", "linkedin", "openai", "chatgpt", "twitter",
+    "x", "whatsapp", "telegram"
 ]
-
-
-# --------------------------------------------------
-# COMMON PHISHING WORDS
-# --------------------------------------------------
 
 PHISHING_SUFFIXES = [
-    "login",
-    "secure",
-    "verify",
-    "account",
-    "update",
-    "signin",
-    "support",
-    "auth",
-    "portal",
-    "web",
-    "bank",
-    "payment",
-    "wallet",
-    "confirm"
+    "login", "secure", "verify", "account", "update",
+    "signin", "support", "auth", "portal", "web",
+    "bank", "payment", "wallet", "confirm"
 ]
 
 
-# --------------------------------------------------
-# ENTROPY
-# --------------------------------------------------
-
 def calculate_entropy(s):
-
     if not s:
         return 0
-
     prob = [float(s.count(c)) / len(s) for c in dict.fromkeys(s)]
-
     return -sum(p * math.log2(p) for p in prob)
 
 
-# --------------------------------------------------
-# NORMALIZE DOMAIN
-# --------------------------------------------------
-
 def normalize_domain(domain):
-
     domain = domain.lower()
-
-    # Remove common phishing suffixes
     parts = re.split(r"[-_.]", domain)
-
-    cleaned = []
-
-    for part in parts:
-
-        if part not in PHISHING_SUFFIXES:
-
-            cleaned.append(part)
-
+    cleaned = [p for p in parts if p not in PHISHING_SUFFIXES]
     return "".join(cleaned)
 
 
-# --------------------------------------------------
-# BRAND IMPERSONATION
-# --------------------------------------------------
-
 def is_similar_to_brand(domain):
-
+    """
+    BUG FIX: Only flag if the domain is SIMILAR but NOT IDENTICAL to a brand.
+    'apple' == 'apple' → NOT impersonation, it IS apple.
+    'appie' ~= 'apple' → IS impersonation.
+    """
     cleaned = normalize_domain(domain)
 
     best_similarity = 0
     detected_brand = None
 
     for brand in IMPORTANT_BRANDS:
-
-        similarity = difflib.SequenceMatcher(
-
-            None,
-
-            cleaned,
-
-            brand
-
-        ).ratio()
-
-        if similarity > best_similarity:
-
-            best_similarity = similarity
+        sim = difflib.SequenceMatcher(None, cleaned, brand).ratio()
+        if sim > best_similarity:
+            best_similarity = sim
             detected_brand = brand
 
+    # Must be similar but NOT an exact match to the brand
     if best_similarity >= 0.75 and cleaned != detected_brand:
-
+        # Extra guard: if cleaned IS a known brand word, skip flagging
+        if cleaned in IMPORTANT_BRANDS:
+            return False, None, best_similarity
         return True, detected_brand, best_similarity
 
     return False, None, best_similarity
 
 
-# --------------------------------------------------
-# RISK ENGINE
-# --------------------------------------------------
-
 def compute_risk_score(features):
-
     score = 0
     reasons = []
 
-    domain = features.get("domain", "").split(".")[0].lower()
+    trusted = features.get("trusted_domain", 0)
 
-    # --------------------------------------------------
-    # BASIC FEATURES
-    # --------------------------------------------------
+    # Extract only the domain name part (no TLD) for analysis
+    domain_full = features.get("domain", "")
+    domain = domain_full.split(".")[0].lower()
+
+    # ---- BASIC FEATURES ----
 
     if features.get("url_length", 0) > 75:
-
         score += 1
         reasons.append("URL is unusually long")
 
     if features.get("has_at_symbol", 0):
-
         score += 2
         reasons.append("Contains '@' symbol")
 
-    if features.get("has_hyphen", 0):
-
+    # BUG FIX: Don't penalise hyphens on trusted domains (cdn-apple.com etc.)
+    if features.get("has_hyphen", 0) and not trusted:
         score += 1
-        reasons.append("Contains hyphens")
+        reasons.append("Contains hyphens in URL")
 
-    if features.get("num_dots", 0) > 3:
-
+    if features.get("num_dots", 0) > 4:
         score += 1
         reasons.append("Too many subdomains")
 
     if not features.get("uses_https", 1):
-
         score += 3
         reasons.append("Does not use HTTPS")
 
     if features.get("has_ip", 0):
-
         score += 5
         reasons.append("Uses IP address instead of domain")
 
-    # Don't penalize login/signin pages on trusted domains
-    if (
-        features.get("has_suspicious_keyword", 0)
-        and not features.get("trusted_domain", 0)
-    ):
+    # BUG FIX: Don't penalise suspicious keywords on trusted domains
+    # e.g. apple.com/account/login is perfectly normal
+    if features.get("has_suspicious_keyword", 0) and not trusted:
         score += 3
         reasons.append("Contains suspicious keywords")
 
-    # --------------------------------------------------
-    # DOMAIN AGE
-    # --------------------------------------------------
-
+    # ---- DOMAIN AGE ----
     age = features.get("domain_age_days", -1)
-
-    if age != -1:
-
+    if age != -1 and not trusted:
         if age < 30:
-
             score += 4
-            reasons.append("Very new domain")
-
+            reasons.append("Very new domain (< 30 days)")
         elif age < 180:
-
             score += 2
-            reasons.append("Recently registered domain")
+            reasons.append("Recently registered domain (< 6 months)")
 
-    # --------------------------------------------------
-    # CONTENT FEATURES
-    # --------------------------------------------------
-
-    if (
-        features.get("has_login_form", 0)
-        and not features.get("trusted_domain", 0)
-    ):
+    # ---- CONTENT (skip for trusted) ----
+    if features.get("has_login_form", 0) and not trusted:
         score += 2
         reasons.append("Login form detected")
 
     if features.get("num_iframes", 0) > 2:
-
         score += 2
-        reasons.append("Multiple iframes detected")
+        reasons.append("Multiple hidden iframes detected")
 
-    if (
-        features.get("title_mismatch", 0)
-        and not features.get("trusted_domain", 0)
-    ):
+    if features.get("title_mismatch", 0) and not trusted:
         score += 1
-        reasons.append("Title mismatch")
-    # --------------------------------------------------
-    # DIGIT MIXING
-    # --------------------------------------------------
+        reasons.append("Page title does not match domain")
 
-    if re.search(r"[A-Za-z]+\d+[A-Za-z]*", domain):
-
+    # ---- DIGIT MIXING — DOMAIN ONLY, not path ----
+    # BUG FIX: Only check the domain part, not the full URL
+    if re.search(r"[A-Za-z]+\d+[A-Za-z]*", domain) and not trusted:
         score += 5
         reasons.append("Suspicious use of numbers in domain")
 
-    # --------------------------------------------------
-    # RANDOM LOOKING DOMAIN
-    # --------------------------------------------------
-
+    # ---- ENTROPY ----
     entropy = calculate_entropy(domain)
-
-    if entropy > 3.5:
-
+    if entropy > 3.5 and not trusted:
         score += 3
-        reasons.append("Random-looking domain")
+        reasons.append("Domain looks randomly generated (high entropy)")
 
-    # --------------------------------------------------
-    # BRAND IMPERSONATION
-    # --------------------------------------------------
+    # ---- BRAND IMPERSONATION ----
+    if not trusted:
+        fake, brand, similarity = is_similar_to_brand(domain)
+        if fake:
+            score += 8
+            reasons.append(
+                f"Possible impersonation of '{brand}' "
+                f"(similarity {similarity:.2f})"
+            )
 
-    fake, brand, similarity = is_similar_to_brand(domain)
-
-    if fake:
-
-        score += 8
-
-        reasons.append(
-
-            f"Possible impersonation of '{brand}' "
-
-            f"(similarity {similarity:.2f})"
-
-        )
-
-    # --------------------------------------------------
-    # NORMALIZE
-    # --------------------------------------------------
-
+    # ---- NORMALIZE ----
     MAX_SCORE = 35
-
     risk_score = min(score / MAX_SCORE, 1.0)
 
-    # --------------------------------------------------
-    # VERDICT
-    # --------------------------------------------------
+    # Trusted domains are always capped low
+    if trusted:
+        risk_score = min(risk_score, 0.20)
 
+    # ---- VERDICT ----
     if risk_score < 0.30:
-
         verdict = "Safe"
-
     elif risk_score < 0.70:
-
         verdict = "Suspicious"
-
     else:
-
         verdict = "Phishing"
 
     if not reasons:
-
         reasons.append("No suspicious patterns detected")
 
     return {
-
         "risk_score": round(risk_score, 2),
-
         "verdict": verdict,
-
         "reasons": reasons
-
     }
