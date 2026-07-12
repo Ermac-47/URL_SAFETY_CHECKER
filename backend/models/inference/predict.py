@@ -1,68 +1,61 @@
-# src/ml/predictor.py
-import re
+# backend/models/inference/predict.py
 import pickle
 import numpy as np
 import os
-from urllib.parse import urlparse
 
-MODEL_PATH  = "data/models/rf_model.pkl"
-SCALER_PATH = "data/models/scaler.pkl"
-
-URL_SHORTENERS = {"bit.ly","tinyurl.com","t.co","goo.gl","ow.ly","short.link","rb.gy"}
-
-def extract_features(url: str) -> list:
-    try:
-        parsed   = urlparse(url)
-        hostname = (parsed.hostname or "").lower()
-        path     = parsed.path or ""
-    except Exception:
-        return [0] * 15
-
-    return [
-        len(url),
-        len(hostname),
-        url.count("."),
-        url.count("-"),
-        url.count("@"),
-        url.count("//"),
-        url.count("/"),
-        url.count("?"),
-        len(parsed.query),
-        1 if re.match(r'^\d{1,3}(\.\d{1,3}){3}$', hostname) else 0,
-        1 if parsed.scheme == "https" else 0,
-        len(hostname.split(".")),
-        len([p for p in path.split("/") if p]),
-        sum(c.isdigit() for c in hostname),
-        1 if any(s in hostname for s in URL_SHORTENERS) else 0
-    ]
-
-# Load once at startup
-_model  = None
+_model = None
 _scaler = None
 
 def _load():
     global _model, _scaler
-    if _model is None and os.path.exists(MODEL_PATH):
-        with open(MODEL_PATH, "rb") as f:
+    model_path = os.path.join(os.path.dirname(__file__), 
+                              '../../trained_models/rf_model.pkl')
+    # fallback to root data folder
+    if not os.path.exists(model_path):
+        model_path = 'data/models/rf_model.pkl'
+    scaler_path = model_path.replace('rf_model', 'scaler')
+    
+    if _model is None and os.path.exists(model_path):
+        with open(model_path, 'rb') as f:
             _model = pickle.load(f)
-        with open(SCALER_PATH, "rb") as f:
+        with open(scaler_path, 'rb') as f:
             _scaler = pickle.load(f)
 
-def predict(url: str) -> dict:
+def predict_url(url: str) -> dict:
     try:
         _load()
         if _model is None:
-            return {"verdict": "UNKNOWN", "confidence": 0.0, "available": False}
-
-        features = np.array(extract_features(url)).reshape(1, -1)
-        scaled   = _scaler.transform(features)
-        pred     = _model.predict(scaled)[0]
-        proba    = _model.predict_proba(scaled)[0]
-
+            return {"prediction": "UNKNOWN", "probability": 0.5, "confidence": 0.0}
+        
+        from utils.feature_extractor import extract_url_features
+        features = extract_url_features(url)
+        
+        feat_vec = np.array([
+            features.get('url_length', 0),
+            features.get('domain_length', 0),
+            features.get('dot_count', 0),
+            features.get('hyphen_count', 0),
+            features.get('at_count', 0),
+            features.get('double_slash', 0),
+            features.get('slash_count', 0),
+            features.get('query_count', 0),
+            features.get('query_length', 0),
+            features.get('has_ip', 0),
+            features.get('has_https', 0),
+            features.get('subdomain_depth', 0),
+            features.get('path_depth', 0),
+            features.get('digit_count', 0),
+            features.get('is_shortener', 0),
+        ]).reshape(1, -1)
+        
+        scaled = _scaler.transform(feat_vec)
+        pred = _model.predict(scaled)[0]
+        proba = _model.predict_proba(scaled)[0]
+        
         return {
-            "verdict":    "MALICIOUS" if pred == 1 else "SAFE",
-            "confidence": round(float(max(proba)) * 100, 1),
-            "available":  True
+            "prediction": "PHISHING" if pred == 1 else "SAFE",
+            "probability": float(max(proba)),
+            "confidence": float(max(proba))
         }
     except Exception as e:
-        return {"verdict": "UNKNOWN", "confidence": 0.0, "available": False}
+        return {"prediction": "UNKNOWN", "probability": 0.5, "confidence": 0.0}
