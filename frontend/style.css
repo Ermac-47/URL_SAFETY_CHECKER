@@ -1,10 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════
-   SHIELDSCAN — SHARED DESIGN SYSTEM  style.css
-   Module 3: Animations · Micro-interactions · Responsiveness · Charts
+SHIELDSCAN — SHARED DESIGN SYSTEM  style.css Module 3: Animations · Micro-interactions · Responsiveness · Charts
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ────────────────────────────────────────────────────────────────
-   1. DESIGN TOKENS
+1. DESIGN TOKENS
 ──────────────────────────────────────────────────────────────── */
 :root {
   /* Background */
@@ -75,7 +74,7 @@
 }
 
 /* ────────────────────────────────────────────────────────────────
-   2. RESET & BASE
+2. RESET & BASE
 ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   margin: 0; padding: 0;
@@ -102,7 +101,7 @@ ul, ol { list-style: none; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 
 /* ────────────────────────────────────────────────────────────────
-   3. AMBIENT BACKGROUND SYSTEM
+3. AMBIENT BACKGROUND SYSTEM
 ──────────────────────────────────────────────────────────────── */
 .bg-grid {
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
@@ -140,7 +139,7 @@ ul, ol { list-style: none; }
 @keyframes blobDrift3 { to { transform: translate(-40px, 40px); } }
 
 /* ────────────────────────────────────────────────────────────────
-   4. TYPOGRAPHY SCALE
+4. TYPOGRAPHY SCALE
 ──────────────────────────────────────────────────────────────── */
 .text-xs    { font-size: 11px; }
 .text-sm    { font-size: 12.5px; }
@@ -159,7 +158,7 @@ ul, ol { list-style: none; }
 .label       { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
 
 /* ────────────────────────────────────────────────────────────────
-   5. CARD COMPONENT
+5. CARD COMPONENT
 ──────────────────────────────────────────────────────────────── */
 .card {
   background: var(--bg-card);
@@ -200,7 +199,7 @@ ul, ol { list-style: none; }
 }
 
 /* ────────────────────────────────────────────────────────────────
-   6. BUTTON SYSTEM
+6. BUTTON SYSTEM
 ──────────────────────────────────────────────────────────────── */
 /* Primary gradient button */
 .btn {
@@ -280,7 +279,7 @@ ul, ol { list-style: none; }
 .btn-full { width: 100%; height: 46px; }
 
 /* ────────────────────────────────────────────────────────────────
-   7. BADGE / CHIP SYSTEM
+7. BADGE / CHIP SYSTEM
 ──────────────────────────────────────────────────────────────── */
 .badge {
   display: inline-flex; align-items: center; gap: 5px;
@@ -306,7 +305,7 @@ ul, ol { list-style: none; }
 }
 
 /* ────────────────────────────────────────────────────────────────
-   8. INPUT SYSTEM
+8. INPUT SYSTEM
 ──────────────────────────────────────────────────────────────── */
 .input-wrap { position: relative; display: flex; align-items: center; }
 .input-icon {
@@ -382,7 +381,7 @@ ul, ol { list-style: none; }
 .pw-eye:hover { color: var(--accent); }
 
 /* ────────────────────────────────────────────────────────────────
-   9. ALERT / TOAST SYSTEM
+9. ALERT / TOAST SYSTEM
 ──────────────────────────────────────────────────────────────── */
 .alert {
   display: none;
@@ -430,7 +429,7 @@ ul, ol { list-style: none; }
 .toast-info    .toast-icon { color: var(--accent); }
 
 /* ────────────────────────────────────────────────────────────────
-   10. PROGRESS BARS
+10. PROGRESS BARS
 ──────────────────────────────────────────────────────────────── */
 .progress { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
 .progress-fill {
@@ -448,7 +447,7 @@ ul, ol { list-style: none; }
 .strength-hint  { font-size: 11px; margin-top: 4px; height: 14px; transition: color 0.3s; }
 
 /* ────────────────────────────────────────────────────────────────
-   11. SIDEBAR
+11. SIDEBAR
 ──────────────────────────────────────────────────────────────── */
 .sidebar {
   position: fixed; top: 0; left: 0;
@@ -558,7 +557,7 @@ ul, ol { list-style: none; }
 .sidebar-hamburger:hover { border-color: var(--border-accent); }
 
 /* ────────────────────────────────────────────────────────────────
-   12. TOPBAR
+12. TOPBAR
 ──────────────────────────────────────────────────────────────── */
 .topbar {
   height: var(--topbar-h);
@@ -600,7 +599,7 @@ ul, ol { list-style: none; }
 .topbar-btn:hover { color: var(--text-primary); border-color: var(--border-accent); }
 
 /* ────────────────────────────────────────────────────────────────
-   13. SECTION HEADER
+13. SECTION HEADER
 ──────────────────────────────────────────────────────────────── */
 .sec-header {
   display: flex; align-items: center; gap: 12px;
@@ -628,7 +627,7 @@ ul, ol { list-style: none; }
 .divider-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 /* ────────────────────────────────────────────────────────────────
-   14. STAT CARD
+14. STAT CARD
 ──────────────────────────────────────────────────────────────── */
 .stat-card {
   display: flex; align-items: flex-start; gap: 14px;
@@ -658,7 +657,7 @@ ul, ol { list-style: none; }
 .trend-flat  { color: var(--text-muted); }
 
 /* ────────────────────────────────────────────────────────────────
-   15. PROTECTION SCORE RING
+15. PROTECTION SCORE RING
 ──────────────────────────────────────────────────────────────── */
 .ring-card {
   display: flex; flex-direction: column;
@@ -687,7 +686,7 @@ ul, ol { list-style: none; }
 .ring-caption { font-size: 11.5px; color: var(--text-muted); text-align: center; line-height: 1.4; }
 
 /* ────────────────────────────────────────────────────────────────
-   16. SCANNER
+16. SCANNER
 ──────────────────────────────────────────────────────────────── */
 .scan-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
 .scan-tab {
@@ -718,7 +717,7 @@ ul, ol { list-style: none; }
 .result-mini-fill { height: 100%; border-radius: 2px; transition: width 0.9s ease; }
 
 /* ────────────────────────────────────────────────────────────────
-   17. DETAIL MODAL
+17. DETAIL MODAL
 ──────────────────────────────────────────────────────────────── */
 .modal-overlay {
   display: none; position: fixed; inset: 0; z-index: 600;
@@ -832,7 +831,7 @@ ul, ol { list-style: none; }
 .action-item i { flex-shrink: 0; margin-top: 2px; color: var(--accent); }
 
 /* ────────────────────────────────────────────────────────────────
-   18. HISTORY TABLE
+18. HISTORY TABLE
 ──────────────────────────────────────────────────────────────── */
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th {
@@ -880,13 +879,13 @@ ul, ol { list-style: none; }
 .table-empty i { font-size: 30px; margin-bottom: 10px; display: block; opacity: 0.5; }
 
 /* ────────────────────────────────────────────────────────────────
-   19. CHART CARDS
+19. CHART CARDS
 ──────────────────────────────────────────────────────────────── */
 .chart-wrap { position: relative; margin-top: 16px; }
 .chart-wrap canvas { max-height: 210px; }
 
 /* ────────────────────────────────────────────────────────────────
-   20. EXTENSION CARD
+20. EXTENSION CARD
 ──────────────────────────────────────────────────────────────── */
 .ext-card { display: flex; align-items: center; gap: 22px; padding: 22px 26px; }
 .ext-big-icon {
@@ -913,7 +912,7 @@ ul, ol { list-style: none; }
 .ext-btns { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
 
 /* ────────────────────────────────────────────────────────────────
-   21. AUTH CARD
+21. AUTH CARD
 ──────────────────────────────────────────────────────────────── */
 .auth-page {
   min-height: 100vh; display: flex;
@@ -988,7 +987,7 @@ ul, ol { list-style: none; }
 .trust-badge i { color: var(--safe); font-size: 10px; }
 
 /* ────────────────────────────────────────────────────────────────
-   22. LAYOUT GRIDS
+22. LAYOUT GRIDS
 ──────────────────────────────────────────────────────────────── */
 .main-layout {
   margin-left: var(--sidebar-w); flex: 1;
@@ -1003,7 +1002,7 @@ ul, ol { list-style: none; }
 .grid-3    { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
 
 /* ────────────────────────────────────────────────────────────────
-   23. ANIMATIONS
+23. ANIMATIONS
 ──────────────────────────────────────────────────────────────── */
 @keyframes fadeIn   { from { opacity:0; }              to { opacity:1; } }
 @keyframes fadeInUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
@@ -1031,7 +1030,7 @@ ul, ol { list-style: none; }
 }
 
 /* ────────────────────────────────────────────────────────────────
-   24. MICRO-INTERACTIONS
+24. MICRO-INTERACTIONS
 ──────────────────────────────────────────────────────────────── */
 /* Icon spin on hover */
 .icon-spin:hover i { animation: spin 0.5s linear; }
@@ -1055,7 +1054,7 @@ ul, ol { list-style: none; }
 @keyframes statPop { from { transform:scale(0.92); opacity:0; } to { transform:scale(1); opacity:1; } }
 
 /* ────────────────────────────────────────────────────────────────
-   25. UTILITY CLASSES
+25. UTILITY CLASSES
 ──────────────────────────────────────────────────────────────── */
 .flex       { display: flex; }
 .flex-col   { display: flex; flex-direction: column; }
@@ -1072,7 +1071,7 @@ ul, ol { list-style: none; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ────────────────────────────────────────────────────────────────
-   26. RESPONSIVE BREAKPOINTS
+26. RESPONSIVE BREAKPOINTS
 ──────────────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
   .grid-4 { grid-template-columns: repeat(2,1fr); }

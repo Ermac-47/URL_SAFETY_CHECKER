@@ -1,13 +1,7 @@
-/* ═══════════════════════════════════════════════════════════════
-   SHIELDSCAN — scripts.js
-   Shared across login.html + dashboard.html
-   API: POST /login  /signup  /check  /check-batch
-   ═══════════════════════════════════════════════════════════════ */
-
 'use strict';
 
 /* ─────────────────────────────────────────────────────────────
-   1. CONSTANTS
+1. CONSTANTS
 ───────────────────────────────────────────────────────────── */
 const API_BASE       = 'http://127.0.0.1:5000';
 const STORAGE_KEY    = 'shieldscan_history';
@@ -16,7 +10,7 @@ const MAX_HISTORY    = 200;
 const SCAN_TIMEOUT_MS= 30000;          // 30 s per URL
 
 /* ─────────────────────────────────────────────────────────────
-   2. STATE
+2. STATE
 ───────────────────────────────────────────────────────────── */
 let scanHistory   = [];                // loaded in initDashboard()
 let historyFilter = 'all';
@@ -27,7 +21,7 @@ let pieChart      = null;
 let barChart      = null;
 
 /* ─────────────────────────────────────────────────────────────
-   3. UTILITY — DOM
+3. UTILITY — DOM
 ───────────────────────────────────────────────────────────── */
 const $  = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
@@ -37,7 +31,7 @@ function hide(el) { if (el) el.style.display = 'none'; }
 function toggleClass(el, cls, force) { if (el) el.classList.toggle(cls, force); }
 
 /* ─────────────────────────────────────────────────────────────
-   4. UTILITY — RIPPLE EFFECT
+4. UTILITY — RIPPLE EFFECT
 ───────────────────────────────────────────────────────────── */
 function addRipple(btn) {
   btn.addEventListener('click', function (e) {
@@ -52,7 +46,7 @@ function addRipple(btn) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   5. TOAST SYSTEM
+5. TOAST SYSTEM
 ───────────────────────────────────────────────────────────── */
 function showToast(msg, type = 'success', duration = 3500) {
   let stack = $('#toastStack');
@@ -66,7 +60,14 @@ function showToast(msg, type = 'success', duration = 3500) {
   const icons = { success:'fa-circle-check', error:'fa-circle-xmark', warning:'fa-triangle-exclamation', info:'fa-circle-info' };
   const t = document.createElement('div');
   t.className = `toast toast-${type}`;
-  t.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} toast-icon"></i><span>${msg}</span>`;
+
+  const icon = document.createElement('i');
+  icon.className = `fa-solid ${icons[type] || icons.info} toast-icon`;
+
+  const text = document.createElement('span');
+  text.textContent = msg;
+
+  t.append(icon, text);
   stack.appendChild(t);
 
   const dismiss = () => {
@@ -78,7 +79,7 @@ function showToast(msg, type = 'success', duration = 3500) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   6. BUTTON LOADING STATE
+6. BUTTON LOADING STATE
 ───────────────────────────────────────────────────────────── */
 function setBtnLoading(btn, loading) {
   if (!btn) return;
@@ -87,7 +88,7 @@ function setBtnLoading(btn, loading) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   7. FIELD VALIDATION HELPERS
+7. FIELD VALIDATION HELPERS
 ───────────────────────────────────────────────────────────── */
 function fieldError(inputId, errId, show) {
   const inp = $(`#${inputId}`);
@@ -106,7 +107,7 @@ function isValidURL(v)   {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   8. PASSWORD STRENGTH METER
+8. PASSWORD STRENGTH METER
 ───────────────────────────────────────────────────────────── */
 function updateStrength(val) {
   const fill  = $('#strengthFill');
@@ -134,7 +135,7 @@ function updateStrength(val) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   9. PASSWORD VISIBILITY TOGGLE
+9. PASSWORD VISIBILITY TOGGLE
 ───────────────────────────────────────────────────────────── */
 function togglePw(inputId, btn) {
   const inp  = $(`#${inputId}`);
@@ -146,7 +147,7 @@ function togglePw(inputId, btn) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   10. AUTH PANEL SWITCHER
+10. AUTH PANEL SWITCHER
 ───────────────────────────────────────────────────────────── */
 function showPanel(name) {
   $$('.auth-panel').forEach(p => p.classList.remove('active'));
@@ -182,7 +183,7 @@ function showAuthAlert(type, msg) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   11. LOGIN
+11. LOGIN
 ───────────────────────────────────────────────────────────── */
 async function handleLogin() {
   const username = ($('#loginUser')?.value  || '').trim();
@@ -221,7 +222,7 @@ async function handleLogin() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   12. REGISTER
+12. REGISTER
 ───────────────────────────────────────────────────────────── */
 async function handleRegister() {
   const first  = ($('#regFirst')?.value  || '').trim();
@@ -270,7 +271,7 @@ async function handleRegister() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   13. FORGOT PASSWORD (simulated — no backend endpoint yet)
+13. FORGOT PASSWORD (simulated — no backend endpoint yet)
 ───────────────────────────────────────────────────────────── */
 function handleForgot() {
   const email = ($('#forgotEmail')?.value || '').trim();
@@ -279,7 +280,7 @@ function handleForgot() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   14. OTP (simulated — wire backend when ready)
+14. OTP (simulated — wire backend when ready)
 ───────────────────────────────────────────────────────────── */
 function sendOTP() {
   const phone = ($('#otpPhone')?.value || '').trim();
@@ -303,7 +304,7 @@ function verifyOTP() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   15. FETCH WITH TIMEOUT
+15. FETCH WITH TIMEOUT
 ───────────────────────────────────────────────────────────── */
 function fetchWithTimeout(url, opts, ms = SCAN_TIMEOUT_MS) {
   const controller = new AbortController();
@@ -313,7 +314,7 @@ function fetchWithTimeout(url, opts, ms = SCAN_TIMEOUT_MS) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   16. SCAN LOGIC
+16. SCAN LOGIC
 ───────────────────────────────────────────────────────────── */
 async function runScan() {
   const raw = ($('#urlInput')?.value || '').trim();
