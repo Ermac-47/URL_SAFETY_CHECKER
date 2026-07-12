@@ -1,147 +1,68 @@
-"""
-Deep Learning Prediction Module
-
-This module loads the trained URLShieldNet model
-and predicts whether a URL is safe or phishing.
-"""
-
-import os
-import joblib
+# src/ml/predictor.py
+import re
+import pickle
 import numpy as np
-import tensorflow as tf
+import os
+from urllib.parse import urlparse
 
-from models.architecture.attention import BahdanauAttention
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+MODEL_PATH  = "data/models/rf_model.pkl"
+SCALER_PATH = "data/models/scaler.pkl"
 
-from models.core.config import MAX_URL_LENGTH
+URL_SHORTENERS = {"bit.ly","tinyurl.com","t.co","goo.gl","ow.ly","short.link","rb.gy"}
 
+def extract_features(url: str) -> list:
+    try:
+        parsed   = urlparse(url)
+        hostname = (parsed.hostname or "").lower()
+        path     = parsed.path or ""
+    except Exception:
+        return [0] * 15
 
-# ============================================
-# PATHS
-# ============================================
-
-MODEL_PATH = "backend/models/trained_models/url_detector.keras"
-TOKENIZER_PATH = "backend/models/trained_models/tokenizer.pkl"
-
-
-# ============================================
-# LOAD MODEL
-# ============================================
-
-print("Loading URLShieldNet...")
-
-model = load_model(
-    MODEL_PATH,
-    compile=False,
-    custom_objects={
-        "BahdanauAttention": BahdanauAttention
-    }
-)
-
-print("Model Loaded Successfully.")
-
-
-# ============================================
-# LOAD TOKENIZER
-# ============================================
-
-tokenizer = joblib.load(TOKENIZER_PATH)
-
-print("Tokenizer Loaded Successfully.")
-
-
-# ============================================
-# PREPROCESS URL
-# ============================================
-
-def preprocess_url(url):
-
-    sequence = tokenizer.texts_to_sequences([url])
-
-    padded = pad_sequences(
-        sequence,
-        maxlen=MAX_URL_LENGTH,
-        padding="post",
-        truncating="post"
-    )
-
-    return padded
-
-
-# ============================================
-# PREDICT
-# ============================================
-
-def predict_url(url):
-
-    X = preprocess_url(url)
-
-    probability = float(
-        model.predict(
-            X,
-            verbose=0
-        )[0][0]
-    )
-
-    prediction = "PHISHING" if probability >= 0.5 else "SAFE"
-
-    confidence = probability if prediction == "PHISHING" else (1 - probability)
-
-    return {
-
-        "url": url,
-
-        "prediction": prediction,
-
-        "probability": probability,
-
-        "confidence": confidence
-
-    }
-
-
-# ============================================
-# BATCH PREDICTION
-# ============================================
-
-def predict_batch(urls):
-
-    results = []
-
-    for url in urls:
-
-        results.append(
-
-            predict_url(url)
-
-        )
-
-    return results
-
-
-# ============================================
-# TEST
-# ============================================
-
-if __name__ == "__main__":
-
-    test_urls = [
-
-        "https://google.com",
-
-        "https://go0gle-login.com",
-
-        "https://paypal.com",
-
-        "http://192.168.1.5/login"
-
+    return [
+        len(url),
+        len(hostname),
+        url.count("."),
+        url.count("-"),
+        url.count("@"),
+        url.count("//"),
+        url.count("/"),
+        url.count("?"),
+        len(parsed.query),
+        1 if re.match(r'^\d{1,3}(\.\d{1,3}){3}$', hostname) else 0,
+        1 if parsed.scheme == "https" else 0,
+        len(hostname.split(".")),
+        len([p for p in path.split("/") if p]),
+        sum(c.isdigit() for c in hostname),
+        1 if any(s in hostname for s in URL_SHORTENERS) else 0
     ]
 
-    predictions = predict_batch(test_urls)
+# Load once at startup
+_model  = None
+_scaler = None
 
-    for result in predictions:
+def _load():
+    global _model, _scaler
+    if _model is None and os.path.exists(MODEL_PATH):
+        with open(MODEL_PATH, "rb") as f:
+            _model = pickle.load(f)
+        with open(SCALER_PATH, "rb") as f:
+            _scaler = pickle.load(f)
 
-        print()
+def predict(url: str) -> dict:
+    try:
+        _load()
+        if _model is None:
+            return {"verdict": "UNKNOWN", "confidence": 0.0, "available": False}
 
-        print(result)
+        features = np.array(extract_features(url)).reshape(1, -1)
+        scaled   = _scaler.transform(features)
+        pred     = _model.predict(scaled)[0]
+        proba    = _model.predict_proba(scaled)[0]
+
+        return {
+            "verdict":    "MALICIOUS" if pred == 1 else "SAFE",
+            "confidence": round(float(max(proba)) * 100, 1),
+            "available":  True
+        }
+    except Exception as e:
+        return {"verdict": "UNKNOWN", "confidence": 0.0, "available": False}
