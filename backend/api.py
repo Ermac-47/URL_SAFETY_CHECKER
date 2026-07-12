@@ -6,6 +6,7 @@ from utils.feature_extractor import extract_url_features
 from utils.risk_engine import compute_risk_score
 from models.inference.predict import predict_url
 
+import secrets
 import json
 import os
 import re
@@ -157,6 +158,8 @@ def signup():
 
 
 # -------------------- LOGIN --------------------
+tokens = {}  # in-memory for demo
+
 @app.route("/login", methods=["POST"])
 def login():
     data = request.json
@@ -164,10 +167,10 @@ def login():
     password = data.get("password")
     users = load_users()
     if username in users and users[username] == password:
-        return jsonify({"status": "success", "message": "Login successful"})
-    else:
-        return jsonify({"status": "fail", "message": "Invalid credentials"})
-
+        token = secrets.token_hex(16)
+        tokens[token] = username
+        return jsonify({"status": "success", "token": token})
+    return jsonify({"status": "fail", "message": "Invalid credentials"})
 
 # -------------------- CORE ANALYSIS --------------------
 def analyze_url(url):
