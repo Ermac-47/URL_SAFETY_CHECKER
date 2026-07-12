@@ -912,8 +912,12 @@
         });
         const data = await res.json();
         if (data.status === 'success') {
+          localStorage.setItem('shield_token', data.token);
+          localStorage.setItem('shield_user', username);
           showSuccess('Login successful — redirecting…');
-          setTimeout(() => window.location.href = 'dashboard.html', 1000);
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1000);
         } else {
           showError(data.message || 'Invalid credentials.');
         }
@@ -923,6 +927,7 @@
         setLoading('loginBtn', false);
       }
     }
+    
 
     /* ── REGISTER ───────────────────────────────────────────── */
     async function handleRegister() {
