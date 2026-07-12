@@ -1811,5 +1811,14 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !batchMode && document.activeElement.id === 'urlInput') runScan();
 });
 </script>
+  <script>
+
+const token = localStorage.getItem("shield_token");
+
+if (!token) {
+    window.location.href = "login.html";
+}
+
+// rest of your dashboard JavaScript...
 </body>
 </html>
